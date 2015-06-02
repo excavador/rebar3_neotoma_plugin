@@ -1,4 +1,6 @@
-deps
+/deps
+/_build
+/.idea
 *.o
 *.beam
 *.plt
