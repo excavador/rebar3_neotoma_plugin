@@ -4,7 +4,7 @@
 -export([init/1, do/1, format_error/1]).
 
 -define(PROVIDER, compile).
--define(DEPS, [{default, compile}]).
+-define(DEPS, [{default}]).
 
 -include_lib("providers/include/providers.hrl").
 
