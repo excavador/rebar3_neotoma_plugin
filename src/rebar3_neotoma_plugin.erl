@@ -17,55 +17,34 @@
 %% else should be done here.
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
-Provider = providers:create([
-    {name,       ?PROVIDER                },
-    {module,     ?MODULE                  },
-    {namespace,  neotoma                  },
-    {bare,       false                    },
-    {deps,       ?DEPS                    },
-    {example,    "rebar3 neotoma compile" },
-    {short_desc, "compile peg files."     },
-    {desc,       "compile peg files."     },
-    {opts,       []                       }
-]),
-{ok, rebar_state:add_provider(State, Provider)}.
+    Provider = providers:create([
+                                {name,       ?PROVIDER                },
+                                {module,     ?MODULE                  },
+                                {namespace,  neotoma                  },
+                                {bare,       false                    },
+                                {deps,       ?DEPS                    },
+                                {example,    "rebar3 neotoma compile" },
+                                {short_desc, "compile peg files."     },
+                                {desc,       "compile peg files."     },
+                                {opts,       []                       }
+                                ]),
+    {ok, rebar_state:add_provider(State, Provider)}.
 
 %% Run the code for the plugin. The command line argument are parsed
 %% and dependencies have been run.
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
     rebar_api:info("Running neotoma...", []),
-    _Ignore = case rebar_state:get(State, escript_main_app, undefined) of
-        undefined ->
-            Dir = rebar_state:dir(State),
-            case rebar_app_discover:find_app(Dir, all) of
-                {true, AppInfo} ->
-                    AllApps = rebar_state:project_apps(State) ++ rebar_state:all_deps(State),
-                    case rebar_app_utils:find(rebar_app_info:name(AppInfo), AllApps) of
-                        {ok, AppInfo1} ->
-                            %% Use the existing app info instead of newly created one
-                            run_neotoma(AppInfo1, State);
-                        _ ->
-                            run_neotoma(AppInfo, State)
-                    end,
-                        {ok, State};
-                _ ->
-                    ?PRV_ERROR(no_main_app)
-            end;
-        _Name ->
-            ok
-    end,
-    {ok, State}.
+    run_neotoma(State).
 
-run_neotoma(App, State) ->
-    Source = rebar_app_info:source(App),
-    Dir = rebar_state:dir(State),
-    rebar_api:debug("source=~p dir=~p", [Source, Dir]),
-    rebar_base_compiler:run(State, [], Source, "peg", Source, "erl",
+run_neotoma(State) ->
+    Dir = filename:join(rebar_state:dir(State), "src"),
+    rebar_base_compiler:run(State, [], Dir, ".peg", Dir, ".erl",
                             fun(SourceF, TargetF, StateF) ->
                                 compile_peg(StateF, SourceF, TargetF, [], Dir, SourceF)
                             end,
-                            [{check_last_mod, false}]).
+                            [{check_last_mod, false}]),
+    {ok, State}.
 
 compile_peg(_State, Source, Target, _Options, _Dir, OutDir) ->
     case needs_compile(Source, Target) of
