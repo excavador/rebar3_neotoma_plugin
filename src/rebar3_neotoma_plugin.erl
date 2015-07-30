@@ -46,10 +46,10 @@ run_neotoma(State) ->
                             [{check_last_mod, false}]),
     {ok, State}.
 
-compile_peg(_State, Source, Target, _Options, _Dir, OutDir) ->
+compile_peg(_State, Source, Target, _Options, Dir, _) ->
     case needs_compile(Source, Target) of
         true ->
-            neotoma:file(Source, [{output, OutDir}]);
+            neotoma:file(Source, [{output, Dir}]);
         false ->
             skipped
     end.
