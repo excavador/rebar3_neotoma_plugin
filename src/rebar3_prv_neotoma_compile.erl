@@ -37,15 +37,13 @@ do(State) ->
            end,
     [begin
          Opts = rebar_app_info:opts(AppInfo),
-         OutDir = filename:join(rebar_app_info:dir(AppInfo), "src"),
          SourceDir = filename:join(rebar_app_info:dir(AppInfo), "src"),
-         FoundFiles = rebar_utils:find_files(SourceDir, ".*\\.peg\$"),
-
-         CompileFun = fun(Source, _Opts1) ->
+         CompileFun = fun(Source, Target, _Config) ->
+                              OutDir = filename:dirname(Target),
                               neotoma:file(Source, [{output, OutDir}])
                       end,
 
-         rebar_base_compiler:run(Opts, [], FoundFiles, CompileFun)
+         rebar_base_compiler:run(Opts, [], SourceDir, ".peg", SourceDir, ".erl", CompileFun, [{check_last_mod, true}])
      end || AppInfo <- Apps],
 
     {ok, State}.
