@@ -37,7 +37,7 @@ do(State) ->
            end,
     [begin
          Opts = rebar_app_info:opts(AppInfo),
-         OutDir = rebar_app_info:out_dir(AppInfo),
+         OutDir = filename:join(rebar_app_info:dir(AppInfo), "src"),
          SourceDir = filename:join(rebar_app_info:dir(AppInfo), "src"),
          FoundFiles = rebar_utils:find_files(SourceDir, ".*\\.peg\$"),
 
